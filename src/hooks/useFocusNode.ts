@@ -22,22 +22,27 @@ export const useFocusNode = () => {
     }
 
     if (!viewPort || !debouncedValue) return;
-    const matchedNodes: NodeListOf<Element> = searchQuery(`span[data-key*='${debouncedValue}' i]`);
-    const matchedNode: Element | null = matchedNodes[selectedNode] || null;
 
     cleanupHighlight();
 
-    if (matchedNode && matchedNode.parentElement) {
-      highlightMatchedNodes(matchedNodes, selectedNode);
-      setNodeCount(matchedNodes.length);
+    setTimeout(() => {
+      const matchedNodes: NodeListOf<Element> = searchQuery(
+        `span[data-key*='${debouncedValue}' i]`
+      );
+      const matchedNode: Element | null = matchedNodes[selectedNode] || null;
 
-      viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
-        elementExtraMarginForZoom: 400,
-      });
-    } else {
-      setSelectedNode(0);
-      setNodeCount(0);
-    }
+      if (matchedNode && matchedNode.parentElement) {
+        highlightMatchedNodes(matchedNodes, selectedNode);
+        setNodeCount(matchedNodes.length);
+
+        viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
+          elementExtraMarginForZoom: 400,
+        });
+      } else {
+        setSelectedNode(0);
+        setNodeCount(0);
+      }
+    }, 50);
 
     gaEvent("input", "search node in graph");
   }, [selectedNode, debouncedValue, value, viewPort]);
