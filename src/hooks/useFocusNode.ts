@@ -14,6 +14,7 @@ export const useFocusNode = () => {
   const skip = () => setSelectedNode(current => (current + 1) % nodeCount);
 
   React.useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
     if (!value) {
       cleanupHighlight();
       setSelectedNode(0);
