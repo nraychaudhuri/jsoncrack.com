@@ -28,7 +28,9 @@ export const useFocusNode = () => {
     cleanupHighlight();
 
     if (matchedNode && matchedNode.parentElement) {
-      highlightMatchedNodes(matchedNodes, selectedNode);
+      setTimeout(() => {
+        highlightMatchedNodes(matchedNodes, selectedNode);
+      }, 50);
       setNodeCount(matchedNodes.length);
 
       viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
