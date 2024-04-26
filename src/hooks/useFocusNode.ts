@@ -14,10 +14,14 @@ export const useFocusNode = () => {
   const skip = () => setSelectedNode(current => (current + 1) % nodeCount);
 
   React.useEffect(() => {
-    if (!value) {
+    const cleanup = () => {
       cleanupHighlight();
       setSelectedNode(0);
       setNodeCount(0);
+    };
+
+    if (!value) {
+      cleanup();
       return;
     }
 
@@ -40,6 +44,8 @@ export const useFocusNode = () => {
     }
 
     gaEvent("input", "search node in graph");
+
+    return cleanup;
   }, [selectedNode, debouncedValue, value, viewPort]);
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
