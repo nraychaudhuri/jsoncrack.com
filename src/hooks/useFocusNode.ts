@@ -3,9 +3,11 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { gaEvent } from "src/lib/utils/gaEvent";
 import { searchQuery, cleanupHighlight, highlightMatchedNodes } from "src/lib/utils/graph/search";
 import useGraph from "src/store/useGraph";
+import useJson from "src/store/useJson"; // Added import for useJson
 
 export const useFocusNode = () => {
   const viewPort = useGraph(state => state.viewPort);
+  const json = useJson(state => state.json); // Added to access JSON data from state
   const [selectedNode, setSelectedNode] = React.useState(0);
   const [nodeCount, setNodeCount] = React.useState(0);
   const [value, setValue] = React.useState("");
@@ -40,7 +42,7 @@ export const useFocusNode = () => {
     }
 
     gaEvent("input", "search node in graph");
-  }, [selectedNode, debouncedValue, value, viewPort]);
+  }, [selectedNode, debouncedValue, value, viewPort, json]); // Added json as a dependency
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
 };
