@@ -16,6 +16,7 @@ export const useFocusNode = () => {
   const skip = () => setSelectedNode(current => (current + 1) % nodeCount);
 
   React.useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
     if (!value) {
       cleanupHighlight();
       setSelectedNode(0);
@@ -24,24 +25,31 @@ export const useFocusNode = () => {
     }
 
     if (!viewPort || !debouncedValue) return;
-    const matchedNodes: NodeListOf<Element> = searchQuery(`span[data-key*='${debouncedValue}' i]`);
-    const matchedNode: Element | null = matchedNodes[selectedNode] || null;
 
-    cleanupHighlight();
+    timeoutId = setTimeout(() => {
+      const matchedNodes: NodeListOf<Element> = searchQuery(`span[data-key*='${debouncedValue}' i]`);
+      const matchedNode: Element | null = matchedNodes[selectedNode] || null;
 
-    if (matchedNode && matchedNode.parentElement) {
-      highlightMatchedNodes(matchedNodes, selectedNode);
-      setNodeCount(matchedNodes.length);
+      cleanupHighlight();
 
-      viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
-        elementExtraMarginForZoom: 400,
-      });
-    } else {
-      setSelectedNode(0);
-      setNodeCount(0);
-    }
+      if (matchedNode && matchedNode.parentElement) {
+        highlightMatchedNodes(matchedNodes, selectedNode);
+        setNodeCount(matchedNodes.length);
 
-    gaEvent("input", "search node in graph");
+        viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
+          elementExtraMarginForZoom: 400,
+        });
+      } else {
+        setSelectedNode(0);
+        setNodeCount(0);
+      }
+
+      gaEvent("input", "search node in graph");
+    }, 50);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [selectedNode, debouncedValue, value, viewPort, json]); // Added json as a dependency
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
