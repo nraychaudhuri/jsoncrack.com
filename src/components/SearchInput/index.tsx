@@ -5,7 +5,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { useFocusNode } from "src/hooks/useFocusNode";
 
 export const SearchInput: React.FC = () => {
-  const [searchValue, setValue, skip, nodeCount, currentNode] = useFocusNode();
+  const [searchValue, setValue, skip, nodeCount, currentNode] = useFocusNode([]);
 
   return (
     <TextInput

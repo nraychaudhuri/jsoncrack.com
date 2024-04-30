@@ -1,5 +1,6 @@
-export const searchQuery = (param: string) => {
-  return document.querySelectorAll(param);
+export const searchQuery = (param: string, jsonData: any) => {
+  // Assuming jsonData is an array of objects where each object represents a node
+  return jsonData.filter(node => node.text.includes(param));
 };
 
 export const cleanupHighlight = () => {
@@ -10,14 +11,19 @@ export const cleanupHighlight = () => {
   });
 };
 
-export const highlightMatchedNodes = (nodes: NodeListOf<Element>, selectedNode: number) => {
-  nodes.forEach(node => {
-    const foreignObject = node.parentElement?.closest("foreignObject");
+export const highlightMatchedNodes = (nodes: any[], selectedNode: number) => {
+  nodes.forEach((node, index) => {
+    const nodeElement = document.querySelector(`[data-key='${node.key}']`);
+    if (nodeElement) {
+      const foreignObject = nodeElement.parentElement?.closest("foreignObject");
 
-    if (foreignObject) {
-      foreignObject.classList.add("searched");
+      if (foreignObject) {
+        foreignObject.classList.add("searched");
+      }
+
+      if (index === selectedNode) {
+        nodeElement.classList.add("highlight");
+      }
     }
   });
-
-  nodes[selectedNode].classList.add("highlight");
 };

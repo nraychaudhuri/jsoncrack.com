@@ -4,7 +4,7 @@ import { gaEvent } from "src/lib/utils/gaEvent";
 import { searchQuery, cleanupHighlight, highlightMatchedNodes } from "src/lib/utils/graph/search";
 import useGraph from "src/store/useGraph";
 
-export const useFocusNode = () => {
+export const useFocusNode = (jsonData) => {
   const viewPort = useGraph(state => state.viewPort);
   const [selectedNode, setSelectedNode] = React.useState(0);
   const [nodeCount, setNodeCount] = React.useState(0);
@@ -22,25 +22,28 @@ export const useFocusNode = () => {
     }
 
     if (!viewPort || !debouncedValue) return;
-    const matchedNodes: NodeListOf<Element> = searchQuery(`span[data-key*='${debouncedValue}' i]`);
-    const matchedNode: Element | null = matchedNodes[selectedNode] || null;
+    const matchedNodes = searchQuery(debouncedValue, jsonData);
+    const matchedNode = matchedNodes[selectedNode] || null;
 
     cleanupHighlight();
 
-    if (matchedNode && matchedNode.parentElement) {
+    if (matchedNode) {
       highlightMatchedNodes(matchedNodes, selectedNode);
       setNodeCount(matchedNodes.length);
 
-      viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
-        elementExtraMarginForZoom: 400,
-      });
+      const element = document.querySelector(`[data-key='${matchedNode.key}']`);
+      if (element && element instanceof HTMLElement) {
+        viewPort?.camera.centerFitElementIntoView(element, {
+          elementExtraMarginForZoom: 400,
+        });
+      }
     } else {
       setSelectedNode(0);
       setNodeCount(0);
     }
 
     gaEvent("input", "search node in graph");
-  }, [selectedNode, debouncedValue, value, viewPort]);
+  }, [selectedNode, debouncedValue, value, viewPort, jsonData]);
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
 };
