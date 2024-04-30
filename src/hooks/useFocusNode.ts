@@ -3,9 +3,11 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { gaEvent } from "src/lib/utils/gaEvent";
 import { searchQuery, cleanupHighlight, highlightMatchedNodes } from "src/lib/utils/graph/search";
 import useGraph from "src/store/useGraph";
+import useJson from "src/store/useJson"; // Import useJson hook
 
 export const useFocusNode = () => {
   const viewPort = useGraph(state => state.viewPort);
+  const json = useJson(state => state.json); // Get the JSON data state
   const [selectedNode, setSelectedNode] = React.useState(0);
   const [nodeCount, setNodeCount] = React.useState(0);
   const [value, setValue] = React.useState("");
@@ -27,20 +29,22 @@ export const useFocusNode = () => {
 
     cleanupHighlight();
 
-    if (matchedNode && matchedNode.parentElement) {
-      highlightMatchedNodes(matchedNodes, selectedNode);
-      setNodeCount(matchedNodes.length);
+    setTimeout(() => { // Introduce a delay before applying highlights
+      if (matchedNode && matchedNode.parentElement) {
+        highlightMatchedNodes(matchedNodes, selectedNode);
+        setNodeCount(matchedNodes.length);
 
-      viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
-        elementExtraMarginForZoom: 400,
-      });
-    } else {
-      setSelectedNode(0);
-      setNodeCount(0);
-    }
+        viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
+          elementExtraMarginForZoom: 400,
+        });
+      } else {
+        setSelectedNode(0);
+        setNodeCount(0);
+      }
+    }, 50); // 50ms delay
 
     gaEvent("input", "search node in graph");
-  }, [selectedNode, debouncedValue, value, viewPort]);
+  }, [selectedNode, debouncedValue, value, viewPort, json]); // Add json as a dependency
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
 };
