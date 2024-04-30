@@ -5,6 +5,7 @@ import { searchQuery, cleanupHighlight, highlightMatchedNodes } from "src/lib/ut
 import useGraph from "src/store/useGraph";
 
 export const useFocusNode = () => {
+  const nodes = useGraph(state => state.nodes); // Added to include JSON data as a dependency
   const viewPort = useGraph(state => state.viewPort);
   const [selectedNode, setSelectedNode] = React.useState(0);
   const [nodeCount, setNodeCount] = React.useState(0);
@@ -40,7 +41,7 @@ export const useFocusNode = () => {
     }
 
     gaEvent("input", "search node in graph");
-  }, [selectedNode, debouncedValue, value, viewPort]);
+  }, [selectedNode, debouncedValue, value, viewPort, nodes]); // nodes added as a dependency
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
 };
