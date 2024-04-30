@@ -26,21 +26,24 @@ export const useFocusNode = () => {
     }
 
     if (!viewPort || !debouncedValue) return;
-    const matchedNodes: NodeListOf<Element> = searchQuery(`span[data-key*='${debouncedValue}' i]`);
-    const matchedNode: Element | null = matchedNodes[selectedNode] || null;
+    const jsonData = JSON.parse(json);
+    const matchedNodes = searchQuery(debouncedValue, jsonData);
+    const matchedNode = matchedNodes[selectedNode] || null;
 
     cleanupHighlight();
 
-    if (matchedNode && matchedNode.parentElement) {
+    if (matchedNode) {
       timeoutId = setTimeout(() => { // Added setTimeout to delay highlight
         highlightMatchedNodes(matchedNodes, selectedNode);
       }, 50); // 50ms delay
 
       setNodeCount(matchedNodes.length);
 
-      viewPort?.camera.centerFitElementIntoView(matchedNode.parentElement, {
-        elementExtraMarginForZoom: 400,
-      });
+      if (matchedNode.element && viewPort?.camera) {
+        viewPort.camera.centerFitElementIntoView(matchedNode.element, {
+          elementExtraMarginForZoom: 400,
+        });
+      }
     } else {
       setSelectedNode(0);
       setNodeCount(0);
@@ -52,4 +55,4 @@ export const useFocusNode = () => {
   }, [selectedNode, debouncedValue, value, viewPort, json]); // Added json as a dependency
 
   return [value, setValue, skip, nodeCount, selectedNode] as const;
-};
+}
