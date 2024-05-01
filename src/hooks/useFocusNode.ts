@@ -29,7 +29,7 @@ export const useFocusNode = () => {
 
     cleanupHighlight();
 
-    setTimeout(() => { // Added timeout
+    const timeoutId = setTimeout(() => { // Added timeout
       if (matchedNode && matchedNode.parentElement) {
         highlightMatchedNodes(matchedNodes, selectedNode);
         setNodeCount(matchedNodes.length);
@@ -42,6 +42,8 @@ export const useFocusNode = () => {
         setNodeCount(0);
       }
     }, 50); // 50ms timeout before applying highlight
+
+    return () => clearTimeout(timeoutId); // Cleanup function
 
     gaEvent("input", "search node in graph");
   }, [selectedNode, debouncedValue, value, viewPort, json]); // Added json as a dependency
